@@ -1,0 +1,143 @@
+---
+title: "Assignment 2"
+author: "Saksham Bafna - B00897607"
+date: "February 7th, 2025"
+always_allow_html: true
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidytuesdayR)
+library(ggrepel)
+library(datasets)
+library(plotly)
+```
+
+There are so many packages and functions to make visualizations, that its really important to be able to read documentation and learn new functions. Fortunately, the design of ggplot means that many functions work very similarly and so once you have learned the basics, it’s quite easy to learn more on your own.
+
+The purpose of this assignment is for you to practice this sort of learning. I’ve picked out a few functions that work much like the examples we’ve looked at already. Your assignment is to pick out one from each question below and show how it works in this R markdown document. This is the sort of practice I do all the time when I learn a new R skill.
+
+For each question below, pick **one** of the functions and demonstrate how the function works by creating an example. I describe briefly what the function or package does and provide a link to documentation or a tutorial which I think will help you learn to use the functions.  Do not simply copy examples from these (or any other) web pages or documentation. Instead, adapt the examples to create your own example. 
+
+You will need to install packages to access some of these files. Include the appropriate `library` function in this .Rmd document. Do **not** include the code to install the package. (I sometimes write the code to install the package, but put a `#` mark at the start of the line of code to mark it as a comment so it is not executed when I knit the document.) This is because you need to use the `library` function each time you use a package, but you only need to install it once.
+
+## Question 1 (3 marks)
+
+Create a visualization that uses **one** of the three following functions:
+
+* The `ggrepel` package provides the geoms `geom_text_repel` and `geom_label_repel` which add labels that do not overlap and are placed near data points or are connected to points with lines. See the [vignette](https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html).
+
+* The `ggtext` package allows you to add colour, italics, bold, and other formatting using markdown and other formatting markup. [Documentation](https://github.com/wilkelab/ggtext).
+
+* The function `expression` makes it possible to add mathematical expressions to text elements in a plot. This function is in the package `base` which is always installed and always loaded, so you don't need a `library` function call. You can find examples  in [this tutorial](https://www.benjaminackerman.com/post/2019-03-08-equation_labels/) and the help page for [plotmath](https://www.rdocumentation.org/packages/grDevices/versions/3.6.2/topics/plotmath).
+
+```{r}
+# create your visualization here
+
+data1 <- USArrests |> 
+  filter(UrbanPop > 75 & Murder > 5)
+
+state <- rownames(data1)
+
+data1 |> 
+  ggplot(aes(x = UrbanPop, y = Murder, label = state)) +
+  geom_point(alpha = 0.5, size = 1.5) +
+  geom_label_repel() + 
+  theme_classic() +
+  labs(
+    x = "Percent Urban Population",
+    y = "Number of Murder Arrests per 100,000",
+    title = "Murder rates over 5 per 100,000 in US States where the 
+    Urban Population exceeds 75%"
+  )
+```
+
+**Explain in a sentence or two what your example does and how to use the function.**
+
+The following figure shows US states with murder rates per 100,000 are over 5 and more than 75% of the population resides in urban areas. 
+The 'ggrepel' function labels the points with the names of states while avoiding overlaps with other text making the plot easier to read. 
+
+## Question 2 (3 marks)
+
+Create a visualization that uses **one** of the three following functions. These are alternatives to boxplots, histograms, or points and error bars (from `stat_summary`)
+
+* Use `geom_violin` to show the distribution of data. (This is part of the tidyverse; there is nothing to install.) [Documentation](https://ggplot2.tidyverse.org/reference/geom_violin.html)
+* Show uncertainty in a set of data using `stat_eye`, `stat_histinterval`, `stat_gradientinterval` or similar functions from package `ggdist`. [Documentation](https://cran.r-project.org/web/packages/ggdist/vignettes/slabinterval.html)
+* Show the distribution of data using either `geom_density` or `stat_ecdf` as an alternative to `geom_histogram`. (These are both part of the tidyverse and documented [here](https://ggplot2.tidyverse.org/reference/stat_ecdf.html) and [here](https://ggplot2.tidyverse.org/reference/geom_density.html))
+
+```{r}
+  ggplot(chickwts, aes(feed, weight)) +
+  geom_violin(trim = FALSE, draw_quantiles = c(0.25, 0.5,0.75), fill = "red", 
+              alpha = 0.5, scale = "count") +
+  geom_jitter(alpha = 0.5) +
+  theme_classic() +
+  labs(
+    x = "Types of Feed",
+    y = "Weight of Chicks (grams)",
+    title = "Varying weights of chicks based on feed supplements"
+  )
+```
+
+**Write a couple of sentences that describes the meaning of your visualization and how you interpret the graphical display.**
+
+The visualization developed shows variation in weights of baby chicks in grams when they are fed different supplements. The width of "boxplot" corresponds to the number of observations and the internal horizontal lines show the upper and lower quartiles and the mean. On an average, chicks grow best on a diet consisting casein or sunflower while horsebean gives the worst comparative results. 
+
+## Question 3 (3 marks)
+
+These are more complex functions, so your goal should be simply to replicate an example from the documentation. Pick **one** of the two functions below, find an example, write code to repeat the example below and describe what visualization your code creates. 
+
+* Make an animated plot using package `gganimate` and its [documentation](https://gganimate.com/articles/gganimate.html). This builds directly on ggplot, creating new asthestics to describe animated changes over time.
+
+
+**Describe what your example does here. Make specific links between your code and the visualization.**
+
+
+* Make a 3d scatterplot using package `plotly` ([Documentation](https://plotly.com/r/3d-scatter-plots/). This is a very different plotting package and style compared to `ggplot`.
+
+```{r}
+mtcars$am[which(mtcars$am == 0)] <- 'Automatic'
+mtcars$am[which(mtcars$am == 1)] <- 'Manual'
+mtcars$am <- as.factor(mtcars$am)
+
+fig <- plot_ly(mtcars, x = ~wt, y = ~hp, z = ~qsec,
+               marker = list(color = ~mpg, colorscale = c('#FFE1A1', '#683531'), 
+                             showscale = TRUE)) |> 
+  add_markers() |> 
+  layout(scene = list(xaxis = list(title = 'Weight'),
+                     yaxis = list(title = 'Gross horsepower'),
+                     zaxis = list(title = '1/4 mile time')), 
+                     annotations = list(
+                        x = 1.13,
+                        y = 1.05,
+                        text = 'Miles/(US) gallon',
+                        xref = 'paper',
+                        yref = 'paper',
+                        showarrow = FALSE
+                        ))
+
+fig
+```
+
+**Describe what your example does here. Make specific links between your code and the visualization.**
+
+Firstly, the code transforms the 'am' column to meaningful data such as 'Automatic' and 'Manual" transmission instead of the binary. This example creates a 3D plot with the car weights on the X-axis, gross horsepower on the Y-axis and the quarter-mile time with the color scale indicating the mileage (fuel efficiency) of the car. 
+
+The heaviest cars and the ones with the highest horsepower are furthest along the X- and Y- axes while the slowest cars are highest on the Z-axis. Simultaneously, the most fuel efficient cars correspond to dark brown. The 'layout' function improves the clarity of the axes titles and adds a label "Miles/gallon" to indicate what the color represents. 
+
+Finally, the fuel efficiency trends show that cars with the highest fuel efficiency tend to be lighter and lower horsepower. 
+
+If you use gganimate, not that for some systems the plot may not work in your knitted document, but it should work in the Rstudio environment. That is OK.
+
+## Knit and submit (1 mark)
+
+When you are done knit your document to pdf to be sure that all the code works without errors.
+
+Then upload your Rmd file and knitted pdf file to BS.
+
+
+
+
